@@ -1,4 +1,29 @@
+import { PixelizationEffect } from './pixelization-effect.js';
+
 document.addEventListener('DOMContentLoaded', () => {
+  
+  // Initialize pixelization effect
+  let pixelEffect = null;
+  const canvas = document.getElementById('pixelCanvas');
+  const heroImage = document.getElementById('heroImage');
+  
+  if (canvas && heroImage) {
+    const effectOptions = {
+      duration: 4000,        // 4 seconds total
+      maxPixelSize: 64,      // Largest pixels
+      minPixelSize: 2,       // Smallest pixels
+      runOnlyOnce: true      // Animation runs only once (default behavior)
+    };
+    
+    heroImage.addEventListener('load', () => {
+      pixelEffect = new PixelizationEffect(canvas, heroImage, effectOptions);
+    });
+    
+    // If image is already loaded
+    if (heroImage.complete && heroImage.naturalWidth > 0) {
+      pixelEffect = new PixelizationEffect(canvas, heroImage, effectOptions);
+    }
+  }
   // Wykrywanie przewijania dla nagłówka
   const siteHeader = document.querySelector('.site-header');
 
@@ -115,13 +140,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mostVisibleSection) {
       const targetId = '#' + mostVisibleSection.id;
       
-      // Dla sekcji1 - wyczyść wszystkie aktywne stany i zakończ
+      // Dla sekcji1 - wyczyść wszystkie aktywne stany i uruchom animację pixelizacji
       if (targetId === '#sekcja1') {
         if (currentActiveSection === 'sekcja1') {
           return; // Już jesteśmy na sekcji 1, nic nie rób
         }
         
         currentActiveSection = 'sekcja1';
+        
+        // Trigger pixelization animation (will only run once due to runOnlyOnce: true)
+        if (pixelEffect) {
+          pixelEffect.startAnimation();
+        }
+        
         if (activeTooltipTimer) {
           clearTimeout(activeTooltipTimer);
           activeTooltipTimer = null;
@@ -176,5 +207,12 @@ document.addEventListener('DOMContentLoaded', () => {
   sections.forEach((section) => {
     sectionObserver.observe(section);
   });
+  
+  // Trigger animation on page load if section 1 is visible
+  setTimeout(() => {
+    if (pixelEffect && window.scrollY < window.innerHeight / 2) {
+      pixelEffect.startAnimation();
+    }
+  }, 100);
 
 });
