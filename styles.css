@@ -285,7 +285,6 @@ footer {
   transition: opacity 0.3s, visibility 0.3s;
 }
 
-
 .side-nav .dot.tooltip-visible::after {
   opacity: 1 !important;
   visibility: visible !important;
@@ -296,11 +295,10 @@ footer {
   visibility: hidden !important;
 }
 
-
 /* ========================================
    SEKCJE TREŚCI (CONTENT SECTIONS)
    ======================================== */
-.hero-section {
+.section-1 {
   height: 100vh;
   position: relative;
   display: flex;
@@ -311,8 +309,12 @@ footer {
   /* background-color: rgba(255, 0, 255, 0.2);  */
 }
 
-.content-section,
-.text-only-section {
+.section-2,
+.section-3,
+.section-4,
+.section-5,
+.section-6,
+.section-7 {
   padding: var(--section-padding);
   width: 100%;
   height: 100vh;
@@ -322,7 +324,7 @@ footer {
   /* background-color: rgba(128, 128, 128, 0.2); */
 }
 
-.about-section {
+.section-8 {
   padding: var(--section-padding);
   width: 100%;
   height: 95vh;
@@ -350,40 +352,46 @@ footer {
 /* ========================================
    PASTELOWE KOLORY DLA KONTENERÓW
    ======================================== */
-.hero-container {
+.container-1 {
   background: linear-gradient(135deg, #e8f5e8, #d4f0d4);
+  overflow: hidden;
 }
 
-.intro-container {
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+}
+
+.container-2 {
   background: linear-gradient(135deg, #ffe5e5, #ffd1d1);
 }
 
-.theme-parks-container {
+.container-3 {
   background: linear-gradient(135deg, #e5f4ff, #d1e7ff);
 }
 
-.theatre-arena-container {
+.container-4 {
   background: linear-gradient(135deg, #e5ffe5, #d1ffd1);
 }
 
-.exhibitions-container {
+.container-5 {
   background: linear-gradient(135deg, #fff2e5, #ffe6d1);
 }
 
-.events-container {
+.container-6 {
   background: linear-gradient(135deg, #f0e5ff, #e6d1ff);
 }
 
-.films-container {
+.container-7 {
   background: linear-gradient(135deg, #e5ffff, #d1ffff);
 }
 
-.about-container {
+.container-8 {
   background: linear-gradient(135deg, #ffe5f4, #ffd1e7);
   height: 70vh;
 }
-
-
 
 /* ========================================
    STOPKA (FOOTER)
@@ -438,9 +446,14 @@ footer {
     gap: 4vw;
   }
 
-  .content-section,
-  .about-section,
-  .text-only-section,
+  .section-1,
+  .section-2,
+  .section-3,
+  .section-4,
+  .section-5,
+  .section-6,
+  .section-7,
+  .section-8,
   footer {
     padding: var(--section-padding) 4vw;
     height: auto;
