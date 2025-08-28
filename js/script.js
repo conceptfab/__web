@@ -1,8 +1,9 @@
 import { PixelizationEffect } from './pixelization-effect.js';
+import { CursorPaintEffect } from './cursor-paint-effect.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   
-  // Initialize pixelization effect
+  // Initialize pixelization effect (Section 1)
   let pixelEffect = null;
   const canvas = document.getElementById('pixelCanvas');
   const heroImage = document.getElementById('heroImage');
@@ -22,6 +23,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // If image is already loaded
     if (heroImage.complete && heroImage.naturalWidth > 0) {
       pixelEffect = new PixelizationEffect(canvas, heroImage, effectOptions);
+    }
+  }
+  
+  // Initialize cursor paint effect (Section 2)
+  let paintEffect = null;
+  const paintCanvas = document.getElementById('paintCanvas');
+  const paintImage = document.getElementById('paintImage');
+  
+  if (paintCanvas && paintImage) {
+    const paintOptions = {
+      brushSize: 100,           // Size of paint brush
+      maxPixelSize: 32,         // Largest pixels
+      minPixelSize: 1,          // Smallest pixels
+      pixelTransitionSpeed: 2000, // 2 seconds to go from large to small pixels
+      fadeInSpeed: 300,         // 300ms fade in
+      enabled: false            // Start disabled
+    };
+    
+    paintImage.addEventListener('load', () => {
+      paintEffect = new CursorPaintEffect(paintCanvas, paintImage, paintOptions);
+    });
+    
+    // If image is already loaded
+    if (paintImage.complete && paintImage.naturalWidth > 0) {
+      paintEffect = new CursorPaintEffect(paintCanvas, paintImage, paintOptions);
     }
   }
   // Wykrywanie przewijania dla nagłówka
@@ -153,6 +179,37 @@ document.addEventListener('DOMContentLoaded', () => {
           pixelEffect.startAnimation();
         }
         
+        // Disable paint effect when in section 1
+        if (paintEffect) {
+          paintEffect.disable();
+        }
+        
+        if (activeTooltipTimer) {
+          clearTimeout(activeTooltipTimer);
+          activeTooltipTimer = null;
+        }
+        sideNavLinks.forEach((link) => {
+          link.classList.remove('tooltip-visible');
+          link.classList.add('tooltip-hidden');
+          link.classList.remove('active');
+        });
+        return;
+      }
+      
+      // Dla sekcji2 - aktywuj efekt malowania kursorem
+      if (targetId === '#sekcja2') {
+        if (currentActiveSection === 'sekcja2') {
+          return; // Już jesteśmy na sekcji 2, nic nie rób
+        }
+        
+        currentActiveSection = 'sekcja2';
+        
+        // Enable cursor paint effect
+        if (paintEffect) {
+          paintEffect.reset(); // Clear any previous paint
+          paintEffect.enable();
+        }
+        
         if (activeTooltipTimer) {
           clearTimeout(activeTooltipTimer);
           activeTooltipTimer = null;
@@ -172,6 +229,11 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Zapisz nową aktywną sekcję
       currentActiveSection = mostVisibleSection.id;
+      
+      // Disable paint effect for sections other than sekcja2
+      if (paintEffect && targetId !== '#sekcja2') {
+        paintEffect.disable();
+      }
       
       // Wyczyść poprzedni timer przy zmianie sekcji
       if (activeTooltipTimer) {
