@@ -1,0 +1,448 @@
+/* ========================================
+   CONCEPTFAB - STYLESHEET
+   ======================================== */
+
+/* ========================================
+   ZMIENNE CSS (CSS VARIABLES)
+   ======================================== */
+:root {
+  --background-color: #f8f8f8;
+  --text-color: #343434;
+  --font-primary: 'Inter', sans-serif;
+
+  /* Layout */
+  --header-padding: 0.75vw;
+  --header-padding-scrolled: 0.25vw;
+  --section-padding: 8vw;
+  --logo-height: 3vw;
+  --logo-height-scrolled: 2.5vw;
+  --menu-button-size: 2.5vw;
+  --menu-bar-height: 0.2vw;
+  --dot-size: 0.4vw;
+  --border-radius: 1.5vw;
+  --shadow-blur: 1.5vw;
+
+  /* Typography */
+  --font-size-large: 8vw;
+  --font-size-medium: 4vw;
+  --font-size-small: 3vw;
+  --font-size-xs: 1.5vw;
+}
+
+/* ========================================
+   RESET I PODSTAWOWE STYLE
+   ======================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: var(--font-primary);
+  overflow-x: hidden;
+}
+
+/* ========================================
+   ELEMENTY DO PRZYCIĄGANIA (SCROLL SNAP)
+   ======================================== */
+section,
+footer {
+  scroll-snap-align: start;
+}
+
+/* ========================================
+   NAGŁÓWEK (HEADER)
+   ======================================== */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: var(--header-padding);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 101;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.site-header.scrolled {
+  padding: var(--header-padding-scrolled) var(--header-padding);
+  background-color: rgba(239, 239, 239, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.logo img {
+  padding-left: 2vw;
+  height: var(--logo-height);
+  width: auto;
+  transition: all 0.3s ease;
+}
+
+.site-header.scrolled .logo img {
+  height: var(--logo-height-scrolled);
+}
+
+/* ========================================
+   PRZYCISK MENU (HAMBURGER)
+   ======================================== */
+.menu-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 101;
+  width: 3vw;
+  height: 3vw;
+  right: 2vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.hamburger-bar {
+  position: absolute;
+  width: 50%;
+  height: 0.25vw;
+  background-color: var(--text-color);
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.hamburger-bar:nth-child(1) {
+  transform: translateY(-0.5vw);
+}
+
+.hamburger-bar:nth-child(3) {
+  transform: translateY(0.5vw);
+}
+
+.menu-toggle.is-active .hamburger-bar:nth-child(1) {
+  transform: rotate(45deg);
+}
+
+.menu-toggle.is-active .hamburger-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.is-active .hamburger-bar:nth-child(3) {
+  transform: rotate(-45deg);
+}
+
+/* ========================================
+   MENU PEŁNOEKRANOWE (NAVIGATION OVERLAY)
+   ======================================== */
+.nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 98;
+  pointer-events: none;
+}
+
+.nav-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ========================================
+   MENU NA OSOBNEJ WARSTWIE
+   ======================================== */
+.fullscreen-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: auto;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.5s ease;
+  z-index: 99;
+  padding-right: 10vw;
+  pointer-events: none;
+}
+
+.fullscreen-nav.is-open {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.fullscreen-nav ul {
+  list-style: none;
+  text-align: right;
+}
+
+.fullscreen-nav ul li a {
+  color: transparent;
+  text-decoration: none;
+  /* font-size: var(--font-size-large); */
+  font-size: 10vh;
+  line-height: 9vh;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.0625vw;
+  display: block;
+  padding: 0.003125vw 0;
+  transition: all 0.3s ease;
+  -webkit-text-stroke: 1px var(--text-color);
+  text-stroke: 1px var(--text-color);
+  position: relative;
+}
+
+.fullscreen-nav ul li a:hover {
+  color: var(--text-color);
+  -webkit-text-stroke: 1px var(--text-color);
+  text-stroke: 1px var(--text-color);
+  transform: scale(1.01);
+}
+
+/* ========================================
+   NAWIGATOR BOCZNY (SIDE NAVIGATION)
+   ======================================== */
+.side-nav {
+  position: fixed;
+  top: 50%;
+  right: 4vw;
+  transform: translateY(-50%);
+  z-index: 50;
+}
+
+.side-nav ul {
+  list-style: none;
+  text-align: right;
+}
+
+.side-nav .dot {
+  width: 0.5vw;
+  height: 0.5vw;
+  font-size: 1vw;
+  text-transform: uppercase;
+  margin: 0.8vw 0; /* 60% niższy (z 2vw na 0.8vw) */
+  background-color: transparent; /* Puste w środku */
+  border: 1px solid var(--text-color); /* Obramowanie */
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+  transform: scale(1);
+}
+
+.side-nav .dot.tooltip-visible {
+  /* Style tylko dla tooltipa - bez efektów hover */
+}
+
+.side-nav .dot.active {
+  /* left: 1px; */
+  border: 1px solid var(--text-color); /* Obramowanie */
+  background-color: var(--text-color);
+  /* width: 0.75vw;
+  height: 0.75vw; */
+}
+
+/* Hover style - tylko przy hover, nie dla aktywnej sekcji */
+.side-nav .dot:hover:not(.active) {
+  border: 1px solid var(--text-color);
+  font-weight: 800;
+  transform: scale(1.01);
+  background-color: var(--text-color);
+  border-color: var(--text-color);
+}
+
+.side-nav .dot::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  right: 100%;
+  margin-right: 0.5vw;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-color);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+
+.side-nav .dot.tooltip-visible::after {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.side-nav .dot.tooltip-hidden::after {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+
+/* ========================================
+   SEKCJE TREŚCI (CONTENT SECTIONS)
+   ======================================== */
+.hero-section {
+  height: 100vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--section-padding);
+  width: 100%;
+  /* background-color: rgba(255, 0, 255, 0.2);  */
+}
+
+.content-section,
+.text-only-section {
+  padding: var(--section-padding);
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background-color: rgba(128, 128, 128, 0.2); */
+}
+
+.about-section {
+  padding: var(--section-padding);
+  width: 100%;
+  height: 95vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ========================================
+   KONTENERY SEKCJI (SECTION CONTAINERS)
+   ======================================== */
+.section-container {
+  width: 90vw;
+  height: 80vh;
+  border-radius: var(--border-radius);
+  /* box-shadow: 0 0.5vw var(--shadow-blur) rgba(0, 0, 0, 0.1); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  position: relative;
+  z-index: 2;
+}
+
+/* ========================================
+   PASTELOWE KOLORY DLA KONTENERÓW
+   ======================================== */
+.hero-container {
+  background: linear-gradient(135deg, #e8f5e8, #d4f0d4);
+}
+
+.intro-container {
+  background: linear-gradient(135deg, #ffe5e5, #ffd1d1);
+}
+
+.theme-parks-container {
+  background: linear-gradient(135deg, #e5f4ff, #d1e7ff);
+}
+
+.theatre-arena-container {
+  background: linear-gradient(135deg, #e5ffe5, #d1ffd1);
+}
+
+.exhibitions-container {
+  background: linear-gradient(135deg, #fff2e5, #ffe6d1);
+}
+
+.events-container {
+  background: linear-gradient(135deg, #f0e5ff, #e6d1ff);
+}
+
+.films-container {
+  background: linear-gradient(135deg, #e5ffff, #d1ffff);
+}
+
+.about-container {
+  background: linear-gradient(135deg, #ffe5f4, #ffd1e7);
+  height: 70vh;
+}
+
+
+
+/* ========================================
+   STOPKA (FOOTER)
+   ======================================== */
+footer {
+  /* padding: 6vw 4vw; */
+  text-align: center;
+  border-top: 0.1vw solid rgba(255, 255, 255, 0.2);
+  height: 5vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* background-color: rgba(0, 128, 0, 0.2);  */
+}
+
+.social-links a {
+  color: var(--text-color);
+  font-size: var(--font-size-small);
+  /* margin: 0 2vw; */
+  text-decoration: none;
+}
+
+.footer-info {
+  /* margin-top: 2vw; */
+  /* font-size: var(--font-size-xs); */
+  font-size: 1vh;
+  opacity: 0.7;
+}
+
+/* ========================================
+   RESPONSYWNOŚĆ (RESPONSIVE DESIGN)
+   ======================================== */
+@media (max-width: 768px) {
+  html {
+    scroll-snap-type: none;
+  }
+
+  .hero-content h1 {
+    font-size: var(--font-size-medium);
+  }
+
+  .fullscreen-nav ul li a {
+    font-size: var(--font-size-small);
+  }
+
+  .side-nav {
+    display: none;
+  }
+
+  .alternating-layout {
+    flex-direction: column !important;
+    gap: 4vw;
+  }
+
+  .content-section,
+  .about-section,
+  .text-only-section,
+  footer {
+    padding: var(--section-padding) 4vw;
+    height: auto;
+  }
+}
