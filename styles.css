@@ -400,6 +400,21 @@ footer {
   cursor: none;
 }
 
+.custom-cursor {
+  position: fixed;
+  width: 100px;
+  height: 100px;
+  border: 2px solid rgba(52, 52, 52, 0.6);
+  border-radius: 50%;
+  background: rgba(52, 52, 52, 0.1);
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease, width 0.2s ease, height 0.2s ease;
+  backdrop-filter: blur(1px);
+}
+
 .container-3 {
   background: linear-gradient(135deg, #e5f4ff, #d1e7ff);
 }
