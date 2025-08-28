@@ -40,6 +40,8 @@ export class PixelizationEffect {
     this.drawHeight = 0;
     this.drawX = 0;
     this.drawY = 0;
+    this.tempCanvas = null; // Reusable canvas for pixelation
+    this.tempCtx = null;
     
     this.setupCanvas();
   }
@@ -54,6 +56,10 @@ export class PixelizationEffect {
     // Set canvas size to match container
     this.canvas.width = rect.width;
     this.canvas.height = rect.height;
+    
+    // Create reusable temporary canvas
+    this.tempCanvas = document.createElement('canvas');
+    this.tempCtx = this.tempCanvas.getContext('2d');
     
     // Calculate image dimensions within container (same as CSS object-fit: cover)
     this.calculateImageDimensions();
@@ -98,41 +104,23 @@ export class PixelizationEffect {
   }
   
   /**
-   * Calculates the average color of the image
+   * Calculates the average color of the image (optimized)
    * @returns {string} RGB color string
    */
   calculateAverageColor() {
     if (this.averageColor) return this.averageColor;
-    
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-    tempCanvas.width = this.image.naturalWidth;
-    tempCanvas.height = this.image.naturalHeight;
-    
-    tempCtx.drawImage(this.image, 0, 0);
-    
-    const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-    const data = imageData.data;
-    
-    let r = 0, g = 0, b = 0;
-    const pixelCount = data.length / 4;
-    
-    for (let i = 0; i < data.length; i += 4) {
-      r += data[i];
-      g += data[i + 1];
-      b += data[i + 2];
-    }
-    
-    r = Math.floor(r / pixelCount);
-    g = Math.floor(g / pixelCount);
-    b = Math.floor(b / pixelCount);
-    
-    this.averageColor = `rgb(${r}, ${g}, ${b})`;
+
+    // Draw the image onto a 1x1 canvas to get the average color
+    this.tempCtx.drawImage(this.image, 0, 0, 1, 1);
+
+    const data = this.tempCtx.getImageData(0, 0, 1, 1).data;
+    this.averageColor = `rgb(${data[0]}, ${data[1]}, ${data[2]})`;
+
     return this.averageColor;
   }
   
   /**
-   * Draws pixelated version of the image
+   * Draws pixelated version of the image (optimized)
    * @param {number} pixelSize - Size of pixels
    */
   drawPixelatedImage(pixelSize) {
@@ -142,9 +130,9 @@ export class PixelizationEffect {
       this.calculateImageDimensions();
     }
     
-    // Create pixelated effect using pre-calculated dimensions
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
+    // Use the reusable temporary canvas
+    const tempCanvas = this.tempCanvas;
+    const tempCtx = this.tempCtx;
     
     const pixelatedWidth = Math.max(1, Math.floor(this.drawWidth / pixelSize));
     const pixelatedHeight = Math.max(1, Math.floor(this.drawHeight / pixelSize));
@@ -152,10 +140,13 @@ export class PixelizationEffect {
     tempCanvas.width = pixelatedWidth;
     tempCanvas.height = pixelatedHeight;
     
+    // Draw the downscaled image to the temporary canvas
     tempCtx.drawImage(this.image, 0, 0, pixelatedWidth, pixelatedHeight);
     
+    // Draw the upscaled, pixelated image to the main canvas
     this.ctx.imageSmoothingEnabled = false;
     this.ctx.drawImage(tempCanvas, this.drawX, this.drawY, this.drawWidth, this.drawHeight);
+    this.ctx.imageSmoothingEnabled = true; // Reset for other operations
   }
   
   /**

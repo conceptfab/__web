@@ -41,7 +41,6 @@ export class CursorPaintEffect {
     this.drawY = 0;
     this.animationFrameId = null;
     this.isDirty = false; // Track if render is needed
-    this.lastRenderTime = 0;
     
     // Custom cursor
     this.customCursor = null;
@@ -50,7 +49,8 @@ export class CursorPaintEffect {
     this.canvasPool = []; // Pool of reusable canvas elements
     this.pixelSizeCache = new Map(); // Cache computed pixel sizes
     this.maxPoolSize = 5;
-    this.frameThrottle = 16; // ~60fps (16ms)
+    this.completedAreasGrid = new Map(); // Spatial grid for faster collision checks
+    this.gridSize = this.options.brushSize; // Grid size for spatial hash
 
     // Pre-compute common values
     this.precomputeValues();
@@ -280,7 +280,7 @@ export class CursorPaintEffect {
   }
 
   /**
-   * Adds a revealed area at the specified position
+   * Adds a revealed area at the specified position (optimized with spatial grid)
    */
   addRevealedArea(x, y) {
     const gridSize = Math.min(20, this.options.brushSize / 5); // Adaptive grid size
@@ -291,16 +291,27 @@ export class CursorPaintEffect {
       return;
     }
     
-    // Additional check: prevent overlap with completed areas using distance
+    // Additional check: prevent overlap with completed areas using spatial grid
     const brushRadius = this.options.brushSize / 2;
-    for (const completedArea of this.completedAreas.values()) {
-      const distance = Math.sqrt(
-        Math.pow(x - completedArea.x, 2) + Math.pow(y - completedArea.y, 2)
-      );
-      
-      // If new area would significantly overlap with completed area, skip it
-      if (distance < (brushRadius + completedArea.radius) * 0.3) {
-        return;
+    const gridX = Math.floor(x / this.gridSize);
+    const gridY = Math.floor(y / this.gridSize);
+
+    // Check current and neighboring grid cells for collisions
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        const cellKey = `${gridX + i}_${gridY + j}`;
+        if (this.completedAreasGrid.has(cellKey)) {
+          for (const completedArea of this.completedAreasGrid.get(cellKey)) {
+            const distance = Math.sqrt(
+              Math.pow(x - completedArea.x, 2) + Math.pow(y - completedArea.y, 2)
+            );
+            
+            // If new area would significantly overlap, skip it
+            if (distance < (brushRadius + completedArea.radius) * 0.3) {
+              return;
+            }
+          }
+        }
       }
     }
 
@@ -484,6 +495,15 @@ export class CursorPaintEffect {
         // Add to completed areas
         this.completedAreas.set(key, area);
         
+        // Add to spatial grid for optimized collision checks
+        const gridX = Math.floor(area.x / this.gridSize);
+        const gridY = Math.floor(area.y / this.gridSize);
+        const cellKey = `${gridX}_${gridY}`;
+        if (!this.completedAreasGrid.has(cellKey)) {
+          this.completedAreasGrid.set(cellKey, []);
+        }
+        this.completedAreasGrid.get(cellKey).push(area);
+        
         // Draw directly to permanent canvas
         permCtx.save();
         permCtx.beginPath();
@@ -502,16 +522,10 @@ export class CursorPaintEffect {
   }
 
   /**
-   * Animation loop (optimized with throttling)
+   * Animation loop (optimized)
    */
   animate() {
-    const now = Date.now();
-
-    // Throttle to ~60fps
-    if (now - this.lastRenderTime >= this.frameThrottle) {
-      this.render();
-      this.lastRenderTime = now;
-    }
+    this.render();
 
     if (this.isActive || this.isDirty) {
       this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
@@ -543,6 +557,7 @@ export class CursorPaintEffect {
     this.isActive = false;
     this.revealedAreas.clear();
     this.completedAreas.clear();
+    this.completedAreasGrid.clear(); // Clear the spatial grid
     this.isDirty = false;
     this.stopAnimation();
     this.hideCursor();
@@ -598,6 +613,7 @@ export class CursorPaintEffect {
     if (newOptions.brushSize !== undefined && oldBrushSize !== this.options.brushSize) {
       this.isDirty = true;
       this.updateCursorSize();
+      this.gridSize = this.options.brushSize; // Update grid size
     }
   }
 
@@ -620,6 +636,7 @@ export class CursorPaintEffect {
     this.canvasPool.length = 0;
     this.revealedAreas.clear();
     this.completedAreas.clear();
+    this.completedAreasGrid.clear();
     this.permanentCanvas = null;
   }
 

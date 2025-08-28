@@ -92,9 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Krok 5: Implementacja Nawigatora Bocznego (JS)
+  // Krok 5: Implementacja Nawigatora Bocznego (JS) - Zrefaktoryzowane
   const sideNavLinks = document.querySelectorAll('.side-nav a');
   const sections = document.querySelectorAll('section[id]');
+  let activeTooltipTimer;
+  let currentActiveSection = null;
 
   // Płynne przewijanie po kliknięciu
   sideNavLinks.forEach((link) => {
@@ -105,25 +107,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Tooltip auto-hide po 5 sekundach
+  // Logika dla tooltipów przy najechaniu myszką (dla nieaktywnych elementów)
   sideNavLinks.forEach((link) => {
     let tooltipTimer;
-
     link.addEventListener('mouseenter', () => {
-      // Hover działa tylko dla nieaktywnych sekcji
       if (!link.classList.contains('active')) {
-        // Usuń poprzedni timer jeśli istnieje
-        if (tooltipTimer) {
-          clearTimeout(tooltipTimer);
-        }
-
-        // Pokaż tooltip
+        if (tooltipTimer) clearTimeout(tooltipTimer);
         link.classList.add('tooltip-visible');
         link.classList.remove('tooltip-hidden');
-
-        // Ustaw timer na 5 sekund
         tooltipTimer = setTimeout(() => {
-          // Ukryj tooltip po 5 sekundach
           link.classList.remove('tooltip-visible');
           link.classList.add('tooltip-hidden');
         }, 5000);
@@ -131,34 +123,67 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     link.addEventListener('mouseleave', () => {
-      // Mouseleave działa tylko dla nieaktywnych sekcji
       if (!link.classList.contains('active')) {
-        // Wyczyść timer przy opuszczeniu
-        if (tooltipTimer) {
-          clearTimeout(tooltipTimer);
-          tooltipTimer = null;
-        }
-
-        // Ukryj tooltip przy opuszczeniu
+        if (tooltipTimer) clearTimeout(tooltipTimer);
         link.classList.remove('tooltip-visible');
         link.classList.add('tooltip-hidden');
       }
     });
   });
 
-  // Timer dla aktywnego tooltipa i aktywna sekcja
-  let activeTooltipTimer;
-  let currentActiveSection = null;
+  // Główna funkcja do zarządzania zmianą aktywnej sekcji
+  const handleSectionChange = (newSectionId) => {
+    if (newSectionId === currentActiveSection) {
+      return; // Bez zmian, przerwij
+    }
+    currentActiveSection = newSectionId;
+
+    // Zarządzanie efektami wizualnymi
+    if (newSectionId === 'sekcja1') {
+      if (pixelEffect) pixelEffect.startAnimation();
+      if (paintEffect) paintEffect.disable();
+    } else if (newSectionId === 'sekcja2') {
+      if (paintEffect) {
+        paintEffect.reset();
+        paintEffect.enable();
+      }
+    } else {
+      if (paintEffect) paintEffect.disable();
+    }
+
+    // Zarządzanie nawigacją boczną (klasy i tooltips)
+    if (activeTooltipTimer) {
+      clearTimeout(activeTooltipTimer);
+    }
+
+    sideNavLinks.forEach((link) => {
+      const isTargetLink = link.getAttribute('href') === `#${newSectionId}`;
+      link.classList.toggle('active', isTargetLink);
+
+      // Pokaż tooltip dla aktywnego linku (ale nie dla sekcji 1 i 2)
+      if (isTargetLink && newSectionId !== 'sekcja1' && newSectionId !== 'sekcja2') {
+        link.classList.remove('tooltip-hidden');
+        link.classList.add('tooltip-visible');
+
+        activeTooltipTimer = setTimeout(() => {
+          link.classList.remove('tooltip-visible');
+          link.classList.add('tooltip-hidden');
+        }, 2000);
+      } else {
+        link.classList.remove('tooltip-visible');
+        link.classList.add('tooltip-hidden');
+      }
+    });
+  };
 
   // Scroll Spy z Intersection Observer
   const observerOptions = {
     root: null,
     rootMargin: '0px',
-    threshold: 0.8, // 80% sekcji musi być widoczne - wyższy próg
+    threshold: 0.8, // 80% sekcji musi być widoczne
   };
 
-  const sectionObserver = new IntersectionObserver((entries, observer) => {
-    // Znajdź sekcję z najwyższym procentem widoczności
+  const sectionObserver = new IntersectionObserver((entries) => {
     let mostVisibleSection = null;
     let highestRatio = 0;
 
@@ -169,107 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Aktywuj tylko sekcję z najwyższym procentem widoczności
     if (mostVisibleSection) {
-      const targetId = '#' + mostVisibleSection.id;
-
-      // Dla sekcji1 - wyczyść wszystkie aktywne stany i uruchom animację pixelizacji
-      if (targetId === '#sekcja1') {
-        if (currentActiveSection === 'sekcja1') {
-          return; // Już jesteśmy na sekcji 1, nic nie rób
-        }
-
-        currentActiveSection = 'sekcja1';
-
-        // Trigger pixelization animation (will only run once due to runOnlyOnce: true)
-        if (pixelEffect) {
-          pixelEffect.startAnimation();
-        }
-
-        // Disable paint effect when in section 1
-        if (paintEffect) {
-          paintEffect.disable();
-        }
-
-        if (activeTooltipTimer) {
-          clearTimeout(activeTooltipTimer);
-          activeTooltipTimer = null;
-        }
-        sideNavLinks.forEach((link) => {
-          link.classList.remove('tooltip-visible');
-          link.classList.add('tooltip-hidden');
-          link.classList.remove('active');
-        });
-        return;
-      }
-
-      // Dla sekcji2 - aktywuj efekt malowania kursorem
-      if (targetId === '#sekcja2') {
-        if (currentActiveSection === 'sekcja2') {
-          return; // Już jesteśmy na sekcji 2, nic nie rób
-        }
-
-        currentActiveSection = 'sekcja2';
-
-        // Enable cursor paint effect
-        if (paintEffect) {
-          paintEffect.reset(); // Clear any previous paint
-          paintEffect.enable();
-        }
-
-        if (activeTooltipTimer) {
-          clearTimeout(activeTooltipTimer);
-          activeTooltipTimer = null;
-        }
-        sideNavLinks.forEach((link) => {
-          link.classList.remove('tooltip-visible');
-          link.classList.add('tooltip-hidden');
-          link.classList.remove('active');
-        });
-        return;
-      }
-
-      // Jeśli ta sama sekcja już jest aktywna, nie rób nic
-      if (currentActiveSection === mostVisibleSection.id) {
-        return;
-      }
-
-      // Zapisz nową aktywną sekcję
-      currentActiveSection = mostVisibleSection.id;
-
-      // Disable paint effect for sections other than sekcja2
-      if (paintEffect && targetId !== '#sekcja2') {
-        paintEffect.disable();
-      }
-
-      // Wyczyść poprzedni timer przy zmianie sekcji
-      if (activeTooltipTimer) {
-        clearTimeout(activeTooltipTimer);
-        activeTooltipTimer = null;
-      }
-
-      sideNavLinks.forEach((link) => {
-        // Ukryj tooltip dla wszystkich sekcji (nieaktywnych)
-        link.classList.remove('tooltip-visible');
-        link.classList.add('tooltip-hidden');
-
-        link.classList.remove('active');
-        if (link.getAttribute('href') === targetId) {
-          link.classList.add('active');
-          // Pokaż tooltip dla nowej aktywnej sekcji
-          link.classList.remove('tooltip-hidden');
-          link.classList.add('tooltip-visible');
-
-          // Ustaw timer na 2 sekundy dla aktywnej sekcji
-          activeTooltipTimer = setTimeout(() => {
-            // Sprawdź czy nadal jest aktywna przed ukryciem
-            if (link.classList.contains('active')) {
-              link.classList.remove('tooltip-visible');
-              link.classList.add('tooltip-hidden');
-            }
-          }, 2000);
-        }
-      });
+      handleSectionChange(mostVisibleSection.id);
+    } else if (!document.querySelector('section[id].active')) {
+        // Jeśli żadna sekcja nie jest aktywna (np. na samej górze strony)
+        handleSectionChange(null);
     }
   }, observerOptions);
 
@@ -277,10 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
     sectionObserver.observe(section);
   });
 
-  // Trigger animation on page load if section 1 is visible
+  // Uruchomienie animacji przy ładowaniu strony, jeśli sekcja 1 jest widoczna
   setTimeout(() => {
-    if (pixelEffect && window.scrollY < window.innerHeight / 2) {
-      pixelEffect.startAnimation();
+    if (window.scrollY < window.innerHeight / 2) {
+      handleSectionChange('sekcja1');
     }
   }, 100);
 });
