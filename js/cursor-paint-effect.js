@@ -16,16 +16,20 @@ export class CursorPaintEffect {
     this.image = image;
     this.ctx = canvas.getContext('2d');
 
-    // Configuration options with defaults
+    // Detect mobile/tablet devices
+    this.isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                         || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+
+    // Configuration options with defaults (optimized for mobile)
     this.options = {
-      brushSize: options.brushSize || 100, // Size of paint brush/circle
-      maxPixelSize: options.maxPixelSize || 32, // Largest pixel size
-      minPixelSize: options.minPixelSize || 1, // Smallest pixel size
-      pixelTransitionSpeed: options.pixelTransitionSpeed || 2000, // Time to go from max to min pixels (ms)
-      fadeInSpeed: options.fadeInSpeed || 500, // Time for area to fade in (ms)
-      enabled: options.enabled !== undefined ? options.enabled : true, // Effect enabled/disabled
-      showCustomCursor: options.showCustomCursor !== undefined ? options.showCustomCursor : true, // Show custom cursor
-      customCursorId: options.customCursorId || 'customCursor', // ID of custom cursor element
+      brushSize: options.brushSize || (this.isMobileDevice ? 150 : 100), // Larger brush on mobile
+      maxPixelSize: options.maxPixelSize || (this.isMobileDevice ? 16 : 32), // Smaller pixels on mobile for performance
+      minPixelSize: options.minPixelSize || 1,
+      pixelTransitionSpeed: options.pixelTransitionSpeed || (this.isMobileDevice ? 1500 : 2000), // Faster on mobile
+      fadeInSpeed: options.fadeInSpeed || 500,
+      enabled: options.enabled !== undefined ? options.enabled : true,
+      showCustomCursor: options.showCustomCursor !== undefined ? options.showCustomCursor : !this.isMobileDevice, // Hide cursor on mobile
+      customCursorId: options.customCursorId || 'customCursor',
       ...options,
     };
 
@@ -68,9 +72,32 @@ export class CursorPaintEffect {
     const container = this.canvas.parentElement;
     const rect = container.getBoundingClientRect();
 
-    // Set canvas size to match container
-    this.canvas.width = rect.width;
-    this.canvas.height = rect.height;
+    // Optimize canvas size for mobile devices (limit max resolution)
+    let canvasWidth = rect.width;
+    let canvasHeight = rect.height;
+    
+    if (this.isMobileDevice) {
+      // Limit canvas size to improve performance on Android tablets
+      const maxCanvasSize = 1200; // Max dimension
+      if (canvasWidth > maxCanvasSize || canvasHeight > maxCanvasSize) {
+        const scale = Math.min(maxCanvasSize / canvasWidth, maxCanvasSize / canvasHeight);
+        canvasWidth *= scale;
+        canvasHeight *= scale;
+      }
+      
+      // Ensure pixel ratio optimization
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x for performance
+      canvasWidth *= pixelRatio;
+      canvasHeight *= pixelRatio;
+      
+      this.canvas.style.width = rect.width + 'px';
+      this.canvas.style.height = rect.height + 'px';
+      this.ctx.scale(pixelRatio, pixelRatio);
+    }
+
+    // Set canvas size
+    this.canvas.width = canvasWidth;
+    this.canvas.height = canvasHeight;
 
     // Calculate image dimensions within container (same as CSS object-fit: cover)
     this.calculateImageDimensions();
@@ -222,9 +249,10 @@ export class CursorPaintEffect {
   }
 
   /**
-   * Binds mouse events for paint effect
+   * Binds mouse and touch events for paint effect
    */
   bindEvents() {
+    // Mouse events for desktop
     this.canvas.addEventListener(
       'mouseenter',
       this.handleMouseEnter.bind(this)
@@ -234,6 +262,12 @@ export class CursorPaintEffect {
       'mouseleave',
       this.handleMouseLeave.bind(this)
     );
+
+    // Touch events for mobile/tablets
+    this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+    this.canvas.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+    this.canvas.addEventListener('touchend', this.handleTouchEnd.bind(this));
+    this.canvas.addEventListener('touchcancel', this.handleTouchEnd.bind(this));
   }
 
   /**
@@ -271,12 +305,56 @@ export class CursorPaintEffect {
   }
 
   /**
+   * Handles touch start event
+   */
+  handleTouchStart(event) {
+    if (!this.options.enabled) return;
+    
+    event.preventDefault(); // Prevent scrolling
+    this.isActive = true;
+    this.updateTouchPosition(event);
+    this.hideCursor(); // Hide custom cursor on touch devices
+    this.startAnimation();
+  }
+
+  /**
+   * Handles touch move event
+   */
+  handleTouchMove(event) {
+    if (!this.options.enabled || !this.isActive) return;
+
+    event.preventDefault(); // Prevent scrolling
+    this.updateTouchPosition(event);
+    this.addRevealedArea(this.mousePosition.x, this.mousePosition.y);
+    this.isDirty = true; // Mark for re-render
+  }
+
+  /**
+   * Handles touch end event
+   */
+  handleTouchEnd(event) {
+    this.isActive = false;
+    this.stopAnimation();
+  }
+
+  /**
    * Updates mouse position relative to canvas
    */
   updateMousePosition(event) {
     const rect = this.canvas.getBoundingClientRect();
     this.mousePosition.x = event.clientX - rect.left;
     this.mousePosition.y = event.clientY - rect.top;
+  }
+
+  /**
+   * Updates touch position relative to canvas
+   */
+  updateTouchPosition(event) {
+    if (event.touches && event.touches.length > 0) {
+      const rect = this.canvas.getBoundingClientRect();
+      this.mousePosition.x = event.touches[0].clientX - rect.left;
+      this.mousePosition.y = event.touches[0].clientY - rect.top;
+    }
   }
 
   /**
@@ -630,6 +708,12 @@ export class CursorPaintEffect {
     this.canvas.removeEventListener('mouseenter', this.handleMouseEnter);
     this.canvas.removeEventListener('mousemove', this.handleMouseMove);
     this.canvas.removeEventListener('mouseleave', this.handleMouseLeave);
+    
+    // Remove touch event listeners
+    this.canvas.removeEventListener('touchstart', this.handleTouchStart);
+    this.canvas.removeEventListener('touchmove', this.handleTouchMove);
+    this.canvas.removeEventListener('touchend', this.handleTouchEnd);
+    this.canvas.removeEventListener('touchcancel', this.handleTouchEnd);
 
     // Clean up caches and pools
     this.pixelSizeCache.clear();
