@@ -44,7 +44,39 @@ html {
 }
 
 body {
-  background-color: var(--background-color);
+  background-color: #000;
+  background-image: radial-gradient(
+      circle at 50% 50%,
+      #0000 1.5px,
+      #000 0 7px,
+      #0000 7px
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      #0000 1.5px,
+      #000 0 7px,
+      #0000 7px
+    ),
+    radial-gradient(circle at 50% 50%, #f00, #f000 60%),
+    radial-gradient(circle at 50% 50%, #ff0, #ff00 60%),
+    radial-gradient(circle at 50% 50%, #0f0, #0f00 60%),
+    radial-gradient(ellipse at 50% 50%, #00f, #00f0 60%);
+  background-size:
+    12px 20.7846097px,
+    12px 20.7846097px,
+    200% 200%,
+    200% 200%,
+    200% 200%,
+    200% 20.7846097px;
+  background-position:
+    0px 0px, 6px 10.39230485px,
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    0% 0px;
+  animation:
+    wee 40s linear infinite,
+    filt 6s linear infinite;
   color: var(--text-color);
   font-family: var(--font-primary);
   overflow-x: hidden;
@@ -242,12 +274,13 @@ footer {
   text-transform: uppercase;
   margin: 0.8vw 0; /* 60% niższy (z 2vw na 0.8vw) */
   background-color: transparent; /* Puste w środku */
-  border: 1px solid var(--text-color); /* Obramowanie */
+  border: 1px solid #ffffff; /* Obramowanie białe */
   border-radius: 50%;
   transition: all 0.3s ease;
   position: relative;
   display: inline-block;
   transform: scale(1);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 
 .side-nav .dot.tooltip-visible {
@@ -256,19 +289,19 @@ footer {
 
 .side-nav .dot.active {
   /* left: 1px; */
-  border: 1px solid var(--text-color); /* Obramowanie */
-  background-color: var(--text-color);
+  border: 1px solid #ffffff; /* Obramowanie */
+  background-color: #ffffff;
   /* width: 0.75vw;
   height: 0.75vw; */
 }
 
 /* Hover style - tylko przy hover, nie dla aktywnej sekcji */
 .side-nav .dot:hover:not(.active) {
-  border: 1px solid var(--text-color);
+  border: 1px solid #ffffff;
   font-weight: 800;
   transform: scale(1.01);
-  background-color: var(--text-color);
-  border-color: var(--text-color);
+  background-color: #ffffff;
+  border-color: #ffffff;
 }
 
 .side-nav .dot::after {
@@ -278,11 +311,12 @@ footer {
   margin-right: 0.5vw;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-color);
+  color: #ffffff;
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s, visibility 0.3s;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 
 .side-nav .dot.tooltip-visible::after {
@@ -353,7 +387,7 @@ footer {
    PASTELOWE KOLORY DLA KONTENERÓW
    ======================================== */
 .container-1 {
-  background: linear-gradient(135deg, #e8f5e8, #d4f0d4);
+  background: #ffffff;
   overflow: hidden;
 }
 
@@ -376,7 +410,7 @@ footer {
 }
 
 .container-2 {
-  background: linear-gradient(135deg, #ffe5e5, #ffd1d1);
+  background: #ffffff;
   overflow: hidden;
   cursor: none; /* Hide default cursor for paint effect */
 }
@@ -447,6 +481,35 @@ footer {
   height: 70vh;
 }
 
+/* Pattern animation keyframes */
+@keyframes filt {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes wee {
+  0% {
+    background-position:
+      var(--p),
+      800% 400%,
+      1000% -400%,
+      -1200% -600%,
+      400% 41.5692194px;
+  }
+  to {
+    background-position:
+      var(--p),
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%;
+  }
+}
+
 /* ========================================
    FLOATING BUTTON
    ======================================== */
@@ -456,10 +519,10 @@ footer {
   bottom: 32px;
   width: 64px;
   height: 64px;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  color: var(--text-color);
+  color: #343434;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -471,7 +534,7 @@ footer {
   transform: scale(0.8);
   transition: all 0.3s ease;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .progress-ring {
