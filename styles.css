@@ -457,6 +457,8 @@ footer {
   width: 64px;
   height: 64px;
   background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: var(--text-color);
   border-radius: 50%;
   display: flex;
