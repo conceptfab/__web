@@ -398,6 +398,13 @@ footer {
   border-radius: var(--border-radius);
   z-index: 10;
   cursor: none;
+  /* Touch optimizations for Android tablets */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .custom-cursor {
@@ -563,5 +570,15 @@ footer {
   footer {
     padding: var(--section-padding) 4vw;
     height: auto;
+  }
+
+  /* Hide custom cursor on mobile */
+  .custom-cursor {
+    display: none !important;
+  }
+
+  /* Optimize canvas containers for touch */
+  .container-2 {
+    cursor: default; /* Show default cursor on mobile */
   }
 }
