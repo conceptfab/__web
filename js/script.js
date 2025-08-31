@@ -57,8 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     }
   }
-  // Wykrywanie przewijania dla nagłówka
+  // Wykrywanie przewijania dla nagłówka i floating button
   const siteHeader = document.querySelector('.site-header');
+  const floatingButton = document.getElementById('floating-button');
 
   window.addEventListener('scroll', () => {
     if (window.scrollY > 50) {
@@ -66,7 +67,23 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       siteHeader.classList.remove('scrolled');
     }
+
+    // Floating button visibility - pokazuj od sekcji 2
+    if (floatingButton) {
+      if (window.scrollY > window.innerHeight * 0.9) {
+        floatingButton.classList.add('visible');
+      } else {
+        floatingButton.classList.remove('visible');
+      }
+    }
   });
+
+  // Floating button functionality
+  if (floatingButton) {
+    floatingButton.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 
   // Krok 4: Implementacja Menu (JS) - ZMIANA DLA ANIMACJI
   const menuToggle = document.querySelector('.site-header .menu-toggle');
@@ -138,6 +155,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     currentActiveSection = newSectionId;
 
+    // Aktualizuj progress ring gdy sekcja się zmienia
+    if (floatingButton && newSectionId) {
+      const totalSections = 8;
+      const progressRing = floatingButton.querySelector('.progress-ring-fill');
+      const sectionNumber = parseInt(newSectionId.replace('sekcja', ''));
+      
+      // Oblicz procent postępu (od 0 do 100%)
+      const progressPercent = (sectionNumber / totalSections) * 100;
+      const circumference = 175.929; // 2 * π * 28
+      const offset = circumference - (progressPercent / 100) * circumference;
+      
+      if (progressRing) {
+        progressRing.style.strokeDashoffset = offset;
+      }
+    }
+
     // Zarządzanie efektami wizualnymi
     if (newSectionId === 'sekcja1') {
       if (pixelEffect) pixelEffect.startAnimation();
@@ -160,8 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const isTargetLink = link.getAttribute('href') === `#${newSectionId}`;
       link.classList.toggle('active', isTargetLink);
 
-      // Pokaż tooltip dla aktywnego linku (ale nie dla sekcji 1 i 2)
-      if (isTargetLink && newSectionId !== 'sekcja1' && newSectionId !== 'sekcja2') {
+      // Pokaż tooltip dla aktywnego linku (ale nie dla sekcji 1)
+      if (isTargetLink && newSectionId !== 'sekcja1') {
         link.classList.remove('tooltip-hidden');
         link.classList.add('tooltip-visible');
 

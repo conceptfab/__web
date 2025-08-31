@@ -441,6 +441,65 @@ footer {
 }
 
 /* ========================================
+   FLOATING BUTTON
+   ======================================== */
+.floating-button {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  width: 64px;
+  height: 64px;
+  background-color: rgba(255, 255, 255, 0.6);
+  color: var(--text-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.8);
+  transition: all 0.3s ease;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.progress-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.1);
+  stroke-width: 2;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--text-color);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 175.929;
+  stroke-dashoffset: 175.929;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.floating-button.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.floating-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================
    STOPKA (FOOTER)
    ======================================== */
 footer {
