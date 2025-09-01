@@ -103,8 +103,8 @@ footer {
   border: none;
   cursor: pointer;
   z-index: 101;
-  width: 3vw;
-  height: 3vw;
+  width: 48px;
+  height: 48px;
   right: 2vw;
   display: flex;
   justify-content: center;
@@ -114,19 +114,19 @@ footer {
 
 .hamburger-bar {
   position: absolute;
-  width: 50%;
-  height: 0.25vw;
+  width: 24px;
+  height: 2px;
   background-color: var(--text-color);
   transition: all 0.3s ease;
   transform-origin: center;
 }
 
 .hamburger-bar:nth-child(1) {
-  transform: translateY(-0.5vw);
+  transform: translateY(-8px);
 }
 
 .hamburger-bar:nth-child(3) {
-  transform: translateY(0.5vw);
+  transform: translateY(8px);
 }
 
 .menu-toggle.is-active .hamburger-bar:nth-child(1) {
@@ -304,7 +304,6 @@ footer {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: var(--section-padding);
   width: 100%;
   /* background-color: rgba(255, 0, 255, 0.2);  */
 }
@@ -315,7 +314,6 @@ footer {
 .section-5,
 .section-6,
 .section-7 {
-  padding: var(--section-padding);
   width: 100%;
   height: 100vh;
   display: flex;
@@ -325,7 +323,6 @@ footer {
 }
 
 .section-8 {
-  padding: var(--section-padding);
   width: 100%;
   height: 95vh;
   display: flex;
@@ -337,8 +334,8 @@ footer {
    KONTENERY SEKCJI (SECTION CONTAINERS)
    ======================================== */
 .section-container {
-  width: 90vw;
-  height: 80vh;
+  width: 100vw;
+  height: 100vh;
   border-radius: var(--border-radius);
   /* box-shadow: 0 0.5vw var(--shadow-blur) rgba(0, 0, 0, 0.1); */
   display: flex;
@@ -444,7 +441,7 @@ footer {
 
 .container-8 {
   background: linear-gradient(135deg, #ffe5f4, #ffd1e7);
-  height: 70vh;
+  height: 100vh;
 }
 
 /* ========================================
@@ -539,39 +536,45 @@ footer {
 /* ========================================
    RESPONSYWNOŚĆ (RESPONSIVE DESIGN)
    ======================================== */
-@media (max-width: 768px) {
+
+/* Mobile phones - portrait */
+@media (max-width: 480px) {
   html {
     scroll-snap-type: none;
   }
 
-  .hero-content h1 {
-    font-size: var(--font-size-medium);
+  :root {
+    --font-size-large: 12vw;
+    --font-size-medium: 6vw;
+    --font-size-small: 4vw;
+    --font-size-xs: 2vw;
+    --border-radius: 0;
   }
 
   .fullscreen-nav ul li a {
-    font-size: var(--font-size-small);
+    font-size: 8vh;
+    line-height: 7vh;
   }
 
   .side-nav {
-    display: none;
+    right: 2vw;
   }
 
-  .alternating-layout {
-    flex-direction: column !important;
-    gap: 4vw;
+  .side-nav .dot {
+    width: 2.4vw;
+    height: 2.4vw;
+    margin: 1.5vw 0;
+    border-width: 1px;
   }
 
-  .section-1,
-  .section-2,
-  .section-3,
-  .section-4,
-  .section-5,
-  .section-6,
-  .section-7,
-  .section-8,
-  footer {
-    padding: var(--section-padding) 4vw;
-    height: auto;
+  .side-nav .dot::after {
+    font-size: 4vw;
+    margin-right: 1vw;
+  }
+
+  .section-container {
+    border-radius: 0;
+    border: none;
   }
 
   /* Hide custom cursor on mobile */
@@ -581,6 +584,113 @@ footer {
 
   /* Optimize canvas containers for touch */
   .container-2 {
-    cursor: default; /* Show default cursor on mobile */
+    cursor: default;
+  }
+
+}
+
+/* Mobile phones - landscape and small tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+  html {
+    scroll-snap-type: none;
+  }
+
+  :root {
+    --font-size-large: 10vw;
+    --font-size-medium: 5vw;
+    --font-size-small: 3.5vw;
+    --font-size-xs: 1.8vw;
+    --border-radius: 0.5vw;
+  }
+
+  .fullscreen-nav ul li a {
+    font-size: 9vh;
+    line-height: 8vh;
+  }
+
+  .side-nav {
+    right: 2.5vw;
+  }
+
+  .side-nav .dot {
+    width: 2vw;
+    height: 2vw;
+    margin: 1.2vw 0;
+    border-width: 1px;
+  }
+
+  .side-nav .dot::after {
+    font-size: 3.5vw;
+    margin-right: 1vw;
+  }
+
+  .alternating-layout {
+    flex-direction: column !important;
+    gap: 4vw;
+  }
+
+  /* Hide custom cursor on tablets */
+  .custom-cursor {
+    display: none !important;
+  }
+
+  .container-2 {
+    cursor: default;
+  }
+}
+
+/* Tablets landscape */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --font-size-large: 7vw;
+    --font-size-medium: 4vw;
+    --font-size-small: 3vw;
+    --font-size-xs: 1.5vw;
+    --border-radius: 1vw;
+  }
+
+  .fullscreen-nav ul li a {
+    font-size: 8vh;
+    line-height: 7vh;
+  }
+
+  .side-nav {
+    right: 3vw;
+  }
+
+  .side-nav .dot {
+    width: 0.6vw;
+    height: 0.6vw;
+    margin: 1vw 0;
+  }
+}
+
+/* Desktop small */
+@media (min-width: 1025px) and (max-width: 1200px) {
+  :root {
+    --font-size-large: 6vw;
+    --font-size-medium: 3.5vw;
+    --font-size-small: 2.5vw;
+    --font-size-xs: 1.3vw;
+  }
+
+  .fullscreen-nav ul li a {
+    font-size: 9vh;
+    line-height: 8vh;
+  }
+}
+
+/* Desktop large */
+@media (min-width: 1201px) {
+  :root {
+    --font-size-large: 8vw;
+    --font-size-medium: 4vw;
+    --font-size-small: 3vw;
+    --font-size-xs: 1.5vw;
+  }
+
+  .fullscreen-nav ul li a {
+    font-size: 10vh;
+    line-height: 9vh;
   }
 }
